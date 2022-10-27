@@ -1,17 +1,26 @@
 package entity;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class Task {
-    private int id;
+    private int id = 0;
     private String name;
     private String description;
+    private LocalDateTime startTime = LocalDateTime.MAX;
+    private int duration = 0;
     private TaskStatus status; //NEW, IN_PROGRESS, DONE
+    private TaskType type; //TASK, EPIC, SUBTASK
 
-    public Task(String name, String description, TaskStatus status) {
+    public Task(String name, String description, TaskType taskType, TaskStatus taskStatus, LocalDateTime startTime,
+                int duration) {
         this.name = name;
         this.description = description;
-        this.status = status;
+        this.type = taskType;
+        this.status = taskStatus;
+        this.startTime = startTime;
+        this.duration = duration;
     }
 
     public String getName() {
@@ -30,6 +39,22 @@ public class Task {
         this.description = description;
     }
 
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setDuration(int minutes) {
+        this.duration = minutes;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -46,14 +71,23 @@ public class Task {
         this.status = status;
     }
 
+    public TaskType getType() {
+        return type;
+    }
+
+    public void setType(TaskType taskType) {
+        this.type = taskType;
+    }
+
+    public LocalDateTime getEndTime() {
+        LocalDateTime endTime;
+        return endTime = startTime.plusMinutes(duration);
+    }
+
     @Override
     public String toString() {
-        return "Task{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", status='" + status + '\'' +
-                '}';
+        return id + "," + name + "," + type + "," + description + "," + status +
+                "," + startTime + "," + duration;
     }
 
     @Override

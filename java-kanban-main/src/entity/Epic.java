@@ -1,19 +1,40 @@
 package entity;
 
+
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 public class Epic extends Task {
-    private List<Subtask> epicSubtask;  //список сабтасков, принадлежащих эпику
-
-    public Epic(String name, String description, TaskStatus status) {
-        super(name, description, status);
+    private List<Subtask> epicSubtask = Collections.emptyList();  //список сабтасков, принадлежащих эпику
+    private LocalDateTime endTime = LocalDateTime.MIN;
+    public Epic(String name, String description, TaskType taskType, TaskStatus taskStatus, LocalDateTime startTime,
+                int duration) {
+        super(name, description, taskType, taskStatus, startTime, duration);
         this.epicSubtask = new ArrayList<>();
+    }
+
+    public Epic(String name, String description, TaskType taskType, TaskStatus taskStatus) {
+        super(name, description, taskType, taskStatus, LocalDateTime.MAX, 0);
+        this.epicSubtask = new ArrayList<>();
+    }
+
+    public void setEpicSubtask(List<Subtask> epicSubtask) {
+        this.epicSubtask = epicSubtask;
     }
 
     public List<Subtask> getEpicSubtasks() {
         return epicSubtask;
+    }
+
+    public void addSubtask(Subtask subtask) {
+        epicSubtask.add(subtask);
+    }
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
     }
 
     public void chooseEpicStatus() {   //метод для проверки статуса Эпика
@@ -31,22 +52,19 @@ public class Epic extends Task {
         }
         //сравнение количества сабтасков со статусами и общего числа сабтасков эпика
         if (newCounter == epicSubtask.size()) {
-            setStatus(TaskStatus.NEW);
+            this.setStatus(TaskStatus.NEW);
         } else if (doneCounter == epicSubtask.size()) {
-            setStatus(TaskStatus.DONE);
+            this.setStatus(TaskStatus.DONE);
         } else {
-            setStatus(TaskStatus.IN_PROGRESS);
+            this.setStatus(TaskStatus.IN_PROGRESS);
         }
     }
 
     @Override
     public String toString() {
-        return "Epic{" +
-                "id=" + getId() +
-                ", name='" + getName() + '\'' +
-                ", description='" + getDescription() + '\'' +
-                ", status='" + getStatus() + '\'' + ", epicSubtasks=" + epicSubtask + '\'' +
-                '}';
+        return  getId() + "," +
+                getName() + ',' + getType() + "," + getDescription() + ',' +
+                getStatus() + "," + getStartTime() + "," + getDuration();
     }
 
     @Override
@@ -64,6 +82,22 @@ public class Epic extends Task {
     }
 
     @Override
-    public void setStatus(TaskStatus status) { //метод переопределен, т.к. самостоятельно изменять статус эпика запрещено
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void updateEpicEndTime() {
+        setDuration(0);
+        setStartTime(LocalDateTime.MAX);
+        setEndTime(LocalDateTime.MIN);
+        for (Subtask subtask:epicSubtask) {
+            if (subtask.getEndTime().isAfter(endTime)) {
+                endTime = subtask.getEndTime();
+            }
+                if (subtask.getStartTime().isBefore(getStartTime())) {
+                    setStartTime(subtask.getStartTime());
+                }
+            setDuration(getDuration() + subtask.getDuration());
+        }
     }
 }
